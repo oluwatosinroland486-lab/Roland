@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <style>
+    body {
+      background-color: aquamarine;
+      font-family: Arial, Helvetica, sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .small-bg {
+      width: 400px;
+      background-color: aliceblue;
+      border-radius: 30px;
+      padding: 40px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 20px;
+      background-color: teal;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #response {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+    #loginBtn {
+      display: none;
+      background-color: darkorange;
+    }
+  </style>
+</head>
+<body>
+  <div class="small-bg">
+    <h1>SIGN UP</h1>
+    <form id="regform">
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Enter your name" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Enter your email" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password" required>
+
+      <button type="submit">Register</button>
+    </form>
+
+    <p id="response"></p>
+
+    <!-- Hidden button appears after successful registration -->
+    <button id="loginBtn" onclick="goToLogin()">Go to Login</button>
+
+    <br><br>
+    <a href="login.html">Already have an account?</a>
+  </div>
+
+  <script>
+    function showMessage(text, type) {
+      const el = document.getElementById("response");
+      el.textContent = text;
+      el.style.color = type === "success" ? "green" : "red";
+    }
+
+    const form = document.getElementById("regform");
+    const loginBtn = document.getElementById("loginBtn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!name || !email || !password) {
+        showMessage("Please fill all fields.", "error");
+        return;
+      }
+
+      const data = { name, email, password };
+
+      try {
+        const response = await fetch("/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showMessage(result.message || "Registered successfully!", "success");
+          form.reset();
+          loginBtn.style.display = "block"; // Show Login button
+        } else {
+          showMessage(result.message || "Registration failed.", "error");
+        }
+      } catch (err) {
+        console.error("Network error:", err);
+        showMessage("Server is offline. Start Flask!", "error");
+      }
+    });
+
+    function goToLogin() {
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

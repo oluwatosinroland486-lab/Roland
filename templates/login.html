@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <style>
+    body {
+      background-color: aquamarine;
+      font-family: Arial, Helvetica, sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .small-bg {
+      width: 400px;
+      background-color: aliceblue;
+      border-radius: 30px;
+      padding: 40px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .options label {
+      font-weight: normal;
+    }
+
+    .options a {
+      text-decoration: none;
+      color: teal;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 20px;
+      background-color: teal;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #response {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #dashboardBtn {
+      display: none;
+      margin-top: 15px;
+      background-color: darkgreen;
+    }
+  </style>
+</head>
+<body>
+  <div class="small-bg">
+    <h1>Login Page</h1>
+    <form id="loginform">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Email" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Password" required>
+
+      <div class="options">
+        <label><input type="checkbox" id="remember"> Remember Me</label>
+        <a href="#">Forgot Password?</a>
+      </div>
+
+      <button type="submit">SUBMIT</button>
+    </form>
+
+    <p id="response"></p>
+
+    <!-- Dashboard button (hidden until login success) -->
+    <button id="dashboardBtn" onclick="goToDashboard()">Go to Dashboard</button>
+  </div>
+
+  <script>
+    function goToDashboard() {
+      window.location.href = "/dashboard.html";
+    }
+
+    const loginform = document.getElementById("loginform");
+
+    loginform.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const emailInput = document.getElementById("email").value.trim();
+      const passwordInput = document.getElementById("password").value;
+      const rememberMe = document.getElementById("remember").checked;
+
+      const data = {
+        email: emailInput,
+        password: passwordInput,
+        remember: rememberMe
+      };
+
+      try {
+        // ✅ Correct endpoint: Flask backend at /login
+        const response = await fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        const responseEL = document.getElementById("response");
+
+        if (response.ok) {
+          responseEL.style.color = "green";
+          responseEL.innerText = result.message || "Login successful!";
+          document.getElementById("dashboardBtn").style.display = "block";
+        } else {
+          responseEL.style.color = "red";
+          responseEL.innerText = result.message || result.error || "Login failed.";
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("response").style.color = "red";
+        document.getElementById("response").innerText = "Network error";
+      }
+    });
+  </script>
+</body>
+</html>
